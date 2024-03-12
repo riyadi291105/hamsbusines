@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Angka</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <header>
+        <h1>hamsbusiness</h1>
+    </header>
+
+    <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-primary rounded-5 shadow-sm" id="pillNav2" role="tablist" style="--bs-nav-link-color: var(--bs-white); --bs-nav-pills-link-active-color: var(--bs-primary); --bs-nav-pills-link-active-bg: var(--bs-white);">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active rounded-5" id="home-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="true">Home</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-5" id="profile-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">Profile</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link rounded-5" id="contact-tab2" data-bs-toggle="tab" type="button" role="tab" aria-selected="false">Contact</button>
+        </li>
+      </ul>
+    <div class="container">
+        <label for="cating">Masukkan nilai cating:</label>
+        <input type="number" id="cating" placeholder="Masukkan nilai cating">
+        <label for="hasilC">Produksi:</label>
+        <input type="text" id="hasilC" placeholder="produksi" readonly>
+        <label for="hasilC1">Modal:</label>
+        <input type="text" id="hasilC1" placeholder="modal" readonly>
+        
+        <label for="labak">Laba:</label>
+        <input type="text" id="labak" placeholder="laba" readonly>
+        
+        <label for="gajiIbu">Gaji Ibu:</label>
+        <input type="text" id="gajiIbu" placeholder="gaji ibu" readonly>
+        <label for="gajiR">Gaji Riyadi:</label>
+        <input type="text" id="gajiR" placeholder="gaji Riyadi" readonly>
+        <label for="laba">laba dan gaji:</label>
+        <input type="text" id="laba" placeholder="laba dan gaji" readonly>
+        
+        <button onclick="hitung()">Hitung</button>
+    </div>
+    
+    <div class="history-container">
+        <h2>History Hitungan</h2>
+        <label for="simpan"></label>
+        <input type="button" id="simpan" value="Simpan" onclick="simpanData()">
+        <input type="button" id="export" value="Export to Excel" onclick="exportToExcel()">
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Cating</th>
+                    <th>Produksi</th>
+                    <th>Modal</th>
+                    <th>Laba</th>
+                    <th>Gaji Ibu</th>
+                    <th>Gaji Riyadi</th>
+                    <th>Laba dan Gaji</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        var hitunganHistory = []; // Variabel untuk menyimpan history hitungan
+
+        // Nilai tetap untuk hasilCating
+        var hasilCating = 14500; // Atau ganti dengan 16000 untuk mengubahnya
+        var hasilCating1 = 16000; // Atau ganti dengan 16000 untuk mengubahnya
+        var gajiIbu1 = 1000;
+        var gajiR1 = 500;
+        var laba1 = 3000;
+        var labak1 = 1500;
+        function hitung() {
+            var cating = parseInt(document.getElementById("cating").value);
+            var hasilC = cating * hasilCating;
+            var hasilC1 = cating * hasilCating1;
+            var gajiIbu = cating * gajiIbu1;
+            var gajiR = cating * gajiR1;
+            var laba = cating * laba1;
+            var labak = cating * labak1;
+
+            // Menyimpan hitungan ke dalam history
+            hitunganHistory.push({
+                cating: cating,
+                hasilC: hasilC,
+                hasilC1: hasilC1,
+                gajiIbu: gajiIbu,
+                gajiR: gajiR,
+                laba: laba,
+                labak: labak
+            });
+
+            // Format hasil ke format Rupiah
+            var hasilFormatted = formatRupiah(hasilC);
+            document.getElementById("hasilC").value = hasilFormatted;
+
+            var hasilFormatted1 = formatRupiah(hasilC1);
+            document.getElementById("hasilC1").value = hasilFormatted1;
+            
+            var hasilFormatted = formatRupiah(gajiIbu);
+            document.getElementById("gajiIbu").value = hasilFormatted;
+            
+            var hasilFormatted = formatRupiah(gajiR);
+            document.getElementById("gajiR").value = hasilFormatted;
+            
+            var hasilFormatted = formatRupiah(laba);
+            document.getElementById("laba").value = hasilFormatted;
+            
+            var hasilFormatted = formatRupiah(labak);
+            document.getElementById("labak").value = hasilFormatted;
+
+            // Menampilkan history hitungan dalam tabel
+            renderHistoryTable();
+        }
+
+        // Fungsi untuk mengonversi angka ke format Rupiah
+        function formatRupiah(angka) {
+            var reverse = angka.toString().split('').reverse().join('');
+            var ribuan = reverse.match(/\d{1,3}/g);
+            var formatted = ribuan.join('.').split('').reverse().join('');
+            return 'Rp ' + formatted;
+        }
+
+        // Fungsi untuk menampilkan history hitungan dalam tabel
+        function renderHistoryTable() {
+            var historyTableBody = document.getElementById("history-body");
+            historyTableBody.innerHTML = ""; // Kosongkan isi tabel
+
+            hitunganHistory.forEach(function(item, index) {
+                var row = "<tr>" +
+                            "<td>" + (index + 1) + "</td>" +
+                            "<td>" + item.cating + "</td>" +
+                            "<td>" + formatRupiah(item.hasilC) + "</td>" +
+                            "<td>" + formatRupiah(item.hasilC1) + "</td>" +
+                            "<td>" + formatRupiah(item.labak) + "</td>" +
+                            "<td>" + formatRupiah(item.gajiIbu) + "</td>" +
+                            "<td>" + formatRupiah(item.gajiR) + "</td>" +
+                            "<td>" + formatRupiah(item.laba) + "</td>" +
+                          "</tr>";
+                historyTableBody.innerHTML += row;
+            });
+        }
+
+        // Fungsi untuk mengirim data ke WhatsApp
+        function simpanData() {
+            var pesan = "History Hitungan: \n";
+            hitunganHistory.forEach(function(item, index) {
+                pesan += "Hitungan ke-" + (index + 1) + ": \n";
+                pesan += "Cating: " + item.cating + "\n";
+                pesan += "Produksi: " + item.hasilC + "\n";
+                pesan += "Modal: " + item.hasilC1 + "\n";
+                pesan += "Laba: " + item.labak + "\n";
+                pesan += "Gaji Ibu: " + item.gajiIbu + "\n";
+                pesan += "Gaji Riyadi: " + item.gajiR + "\n";
+                pesan += "Laba dan Gaji: " + item.laba + "\n\n";
+            });
+
+            var url = "https://wa.me/6281234567890?text=" + encodeURIComponent(pesan);
+            window.open(url, '_blank');
+        }
+
+        // Fungsi untuk mengekspor data ke Excel
+        function exportToExcel() {
+    var wb = XLSX.utils.book_new(); // Buat buku baru
+
+    // Tambahkan sheet baru ke buku
+    var ws = XLSX.utils.json_to_sheet(hitunganHistory);
+
+    // Sesuaikan judul kolom
+    ws['A1'] = { v: 'No.', t: 's' };
+    ws['B1'] = { v: 'Cating', t: 's' };
+    ws['C1'] = { v: 'Produksi', t: 's' };
+    ws['D1'] = { v: 'Modal', t: 's' };
+    ws['E1'] = { v: 'Laba', t: 's' };
+    ws['F1'] = { v: 'Gaji Ibu', t: 's' };
+    ws['G1'] = { v: 'Gaji Riyadi', t: 's' };
+    ws['H1'] = { v: 'Laba dan Gaji', t: 's' };
+
+    // Tambahkan sheet ke buku
+    XLSX.utils.book_append_sheet(wb, ws, "History");
+
+    // Simpan file Excel
+    XLSX.writeFile(wb, "history.xlsx");
+}
+
+
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+</body>
+</html>
